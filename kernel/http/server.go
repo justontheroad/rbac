@@ -1,4 +1,4 @@
-package kernal
+package http
 
 import (
 	"context"
@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/justontheroad/rbac/kernel"
 )
 
+// Server is a HTTP server wrapper.
 type Server struct {
 	*http.Server
 	lis     net.Listener
@@ -19,11 +21,14 @@ type Server struct {
 	router  *mux.Router
 }
 
-func NewServer() *Server {
+func NewServer(configs ...ServerConfig) *Server {
 	srv := &Server{
 		network: "tcp",
 		address: ":0",
 		timeout: time.Second,
+	}
+	for _, config := range configs {
+		config(srv)
 	}
 	srv.router = mux.NewRouter()
 	srv.Server = &http.Server{Handler: srv}
@@ -38,13 +43,14 @@ func (srv *Server) HandlePrefix(path string, h http.Handler) {
 	srv.router.PathPrefix(path).Handler(h)
 }
 
-func (srv *Server) HnadlerFun(path string, h http.HandlerFunc) {
+func (srv *Server) HandleFunc(path string, h http.HandlerFunc) {
 	srv.router.HandleFunc(path, h)
 }
 
 func (srv *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), srv.timeout)
 	defer cancel()
+	ctx = kernel.NewContext(ctx, kernel.Transport{Kind: kernel.Http})
 	srv.router.ServeHTTP(res, req.WithContext(ctx))
 }
 
