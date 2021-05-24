@@ -35,16 +35,20 @@ func NewServer(configs ...ServerConfig) *Server {
 	return srv
 }
 
-func (srv *Server) Hnadler(path string, h http.Handler) {
-	srv.router.Handle(path, h)
+func (srv *Server) Handle(path string, h http.Handler) *mux.Route {
+	return srv.router.Handle(path, h)
 }
 
-func (srv *Server) HandlePrefix(path string, h http.Handler) {
-	srv.router.PathPrefix(path).Handler(h)
+func (srv *Server) Subrouters(path string) *mux.Router {
+	return srv.router.PathPrefix(path).Subrouter()
 }
 
-func (srv *Server) HandleFunc(path string, h http.HandlerFunc) {
-	srv.router.HandleFunc(path, h)
+func (srv *Server) HandlePrefix(path string, h http.Handler) *mux.Route {
+	return srv.router.PathPrefix(path).Handler(h)
+}
+
+func (srv *Server) HandleFunc(path string, h http.HandlerFunc) *mux.Route {
+	return srv.router.HandleFunc(path, h)
 }
 
 func (srv *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
