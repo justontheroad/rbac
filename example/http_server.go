@@ -9,6 +9,7 @@ import (
 	"github.com/justontheroad/rbac/app"
 	"github.com/justontheroad/rbac/handler"
 	khttp "github.com/justontheroad/rbac/kernel/http"
+	"github.com/justontheroad/rbac/middleware"
 )
 
 func main() {
@@ -20,6 +21,9 @@ func main() {
 		app.SetVersion("1.0.0"),
 		app.SetServer(hs),
 	)
+
+	// use middleware
+	hs.UseMiddleware(middleware.LoggingMiddleware)
 
 	// handle func
 	hs.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {

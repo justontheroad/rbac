@@ -35,6 +35,10 @@ func NewServer(configs ...ServerConfig) *Server {
 	return srv
 }
 
+func (srv *Server) UseMiddleware(mwf mux.MiddlewareFunc) {
+	srv.router.Use(mwf)
+}
+
 func (srv *Server) Handle(path string, h http.Handler) *mux.Route {
 	return srv.router.Handle(path, h)
 }
