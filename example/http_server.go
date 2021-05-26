@@ -23,7 +23,9 @@ func main() {
 	)
 
 	// use middleware
-	hs.UseMiddleware(middleware.LoggingMiddleware)
+	// hs.UseMiddleware(middleware.LoggingMiddleware)
+	httpLogger := middleware.HTTPLogger{}
+	hs.UseMiddleware(httpLogger.Middleware)
 
 	// handle func
 	hs.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
