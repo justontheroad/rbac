@@ -27,6 +27,11 @@ func main() {
 	httpLogger := middleware.HTTPLogger{}
 	hs.UseMiddleware(httpLogger.Middleware)
 
+	// auth middleware
+	auth := middleware.AuthenticationMiddleware{}
+	auth.Populate()
+	// hs.UseMiddleware(auth.Middleware)
+
 	// handle func
 	hs.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
@@ -46,6 +51,8 @@ func main() {
 	sub.HandleFunc("/{key}/details", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("details"))
 	})
+	// use auth middleware
+	sub.Use(auth.Middleware)
 
 	// Serving Single Page Applications
 	spa := handler.SpaHandler{StaticPath: "public", IndexPath: "index.html"}
